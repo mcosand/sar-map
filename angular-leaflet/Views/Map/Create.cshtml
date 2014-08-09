@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "Map - " + this.ViewBag.MapName;
+    ViewBag.NgApp = "leafletapp";
+    ViewBag.NgController = "MapController";
+}
+
+<div class="row">
+  <h2 class="col-xs12 gutters-15">Create New Map</h2>
+</div>
+<div class="row">
+  <div class="col-xs-12 col-sm-6">
+    <form role="form" class="form-horizontal gutters-15" style="margin-bottom:15px">
+      <div class="form-group">
+        <label for="mapName">Map name</label>
+        <input type="text" class="form-control input-lg" id="mapName" data-ng-model="newMapName" />
+      </div>
+      <div class="form-group">
+        <label for="mapLat">Latitude</label>
+        <input type="text" class="form-control" id="mapLat" data-ng-model="map.center.lat" />
+      </div>
+      <div class="form-group">
+        <label for="mapLng">Longitude</label>
+        <input type="text" class="form-control" id="mapLng" data-ng-model="map.center.lng" />
+      </div>
+      <div class="form-group">
+        <label for="mapZoom">Zoom level</label>
+        <input type="text" class="form-control" id="mapZoom" data-ng-model="map.center.zoom" />
+      </div>
+      <button type="submit" class="btn btn-default" data-ng-disabled="isWorking" data-ng-click="doCreate()">Create Map</button>
+    </form>
+  </div>
+  <div class="col-xs-12 col-sm-6">
+    <leaflet center="map.center" layers="map.layers" markers="map.markers" defaults="map.defaults" style="height:400px; margin-right:20px"></leaflet>
+  </div>
+</div>
+@section scripts {
+  @Scripts.Render("~/bundles/sitescript")
+
+  <script type="text/javascript">
+    var mapServices = angular.module('mapServices', ['ngResource']);
+
+    mapServices.factory('Map', ['$resource',
+      function ($resource) {
+        return $resource(_appRoot + 'api/Map/:mapId', { mapId: '@@Id' });
+      }]);
+
+
+    var app = angular.module("leafletapp", ["leaflet-directive", "mapServices"]);
+
+    app.controller('MapController', ["$scope", "$timeout", "$window", "Map", function ($scope, $timeout, $window, MapResource)
+    {
+      angular.extend($scope, {
+        doCreate: function()
+        {
+          $scope.isWorking = true;
+          var m = new MapResource({
+            lat: $scope.map.center.lat,
+            lng: $scope.map.center.lng,
+            zoom: $scope.map.center.zoom,
+            name: $scope.newMapName
+          });
+          m.$save().then(function (map) {
+            $window.location.href = _appRoot + "Map/View/" + map.Id;
+          });
+          //alert('hi');
+        },
+        newMapName: null,
+        isWorking: false,
+        map: {
+          center: {
+            lat: 47.5,
+            lng: -122,
+            zoom: 12
+          },
+          layers: {
+            baselayers: {
+              mapquest: {
+                name: 'MapQuest',
+                url: 'http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.jpg',
+                type: 'xyz',
+                layerOptions: {
+                  subdomains: '1234',
+                  attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+                }
+              },
+              osm: {
+                name: 'OpenStreetMap',
+                url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                type: 'xyz'
+              },
+              arcUSTopo: {
+                name: 'arcUS',
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/{z}/{y}/{x}',
+                type: 'xyz',
+                layerOptions: {
+                  maxZoom: 15
+                }
+              },
+              usgsTopo: {
+                name: 'USGS Topo',
+                url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+                type: 'xyz',
+                layerOptions: {
+                  maxZoom: 15
+                }
+              }
+
+            }
+          },
+          markers: {
+            crosshair: {
+              lat: 47.5,
+              lng: -122,
+              focus: false,
+              draggable: false,
+              icon: {
+                iconUrl: '@Url.Content("~/images/map/crosshair.png")',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+                shadowSize: [0, 0]
+              }
+            }
+          },
+          defaults: {
+            scrollWheelZoom: true
+          },
+          events: {
+            map: {
+              enable: ['move', 'moveend'],
+              logic: 'emit'
+            }
+          }
+        }
+      });
+
+      var updateCrosshair = function (event) {
+        //$timeout(function () {
+        //  $scope.$apply(function (scope) {
+        $scope.map.markers.crosshair.lat = $scope.map.center.lat;
+        $scope.map.markers.crosshair.lng = $scope.map.center.lng;
+        //  });
+        //});
+        //if ($scope.markers.crosshair.setLatLng) $scope.markers.crosshair.setLatLng($scope.center);
+      };
+      $scope.$on('leafletDirectiveMap.move', updateCrosshair);
+      $scope.$on('leafletDirectiveMap.moveend', updateCrosshair);
+    }]);
+  </script>
+}
+@section styles {
+  <style type="text/css">
+    .leaflet-control-layers-toggle { background-image: url(@Url.Content("~/images/map/layers.png")) }
+    .gutters-15 { padding-left:15px; padding-right:15px; }
+  </style>
+}

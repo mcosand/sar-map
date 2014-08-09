@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<leaflet style="height:400px; width:100%"></leaflet>
+
+@section scripts {
+  @Scripts.Render("~/bundles/sitescript")
+
+  <script type="text/javascript">
+    angular.module("leafletapp", ["leaflet-directive"]);
+  </script>
+}

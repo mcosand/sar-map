@@ -1,0 +1,107 @@
+﻿@{  
+    ViewBag.Title = "Map - " +@Model.Name;
+    ViewBag.NgApp = "leafletapp";
+    ViewBag.NgController = "MapController";
+}
+
+<leaflet center="center" layers="layers" markers="markers" defaults="defaults" style="height:400px; width:100%"></leaflet>
+<div>
+  <span data-ng-bind="center.lat"></span>
+  <span data-ng-bind="center.lng"></span>
+  <span data-ng-bind="center.zoom"></span>
+</div>
+@section scripts {
+  @Scripts.Render("~/bundles/sitescript")
+
+  <script type="text/javascript">
+    var app = angular.module("leafletapp", ["leaflet-directive"]);
+    app.controller('MapController', ["$scope", "$timeout", function ($scope, $timeout)
+    {
+      angular.extend($scope, {
+        center: {
+          lat: @Model.Lat,
+          lng: @Model.Lng,
+          zoom: @Model.Zoom
+        },
+        layers: {
+          baselayers: {
+            mapquest: {
+              name: 'MapQuest',
+              url: 'http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.jpg',
+              type: 'xyz',
+              layerOptions: {
+                subdomains: '1234',
+                attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+              }
+            },
+            osm: {
+              name: 'OpenStreetMap',
+              url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              type: 'xyz'
+            },
+            arcUSTopo: {
+              name: 'arcUS',
+              url: 'https://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/{z}/{y}/{x}',
+              type: 'xyz',
+              layerOptions: {
+                maxNativeZoom: 15,
+                maxZoom: 18
+              }
+            },
+            usgsTopo: {
+              name: 'USGS Topo',
+              url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+              type: 'xyz',
+              layerOptions: {
+                maxNativeZoom: 15
+              }
+            }
+
+          }
+        },
+        markers: {
+          crosshair: {
+            lat: 47.5,
+            lng: -122,
+            focus: false,
+            draggable: false,
+            icon: {
+              iconUrl: '@Url.Content("~/images/map/crosshair.png")',
+              iconSize: [20, 20],
+              iconAnchor: [10, 10],
+              shadowSize: [0,0]
+            }
+          }
+        },
+        defaults: {
+          scrollWheelZoom: true
+        },
+        events: {
+          map: {
+            enable: ['move', 'moveend'],
+            logic: 'emit'
+          }
+        }
+      });
+
+      var updateCrosshair = function (event) {
+        //$timeout(function () {
+        //  $scope.$apply(function (scope) {
+        $scope.markers.crosshair.lat = $scope.center.lat;
+        $scope.markers.crosshair.lng = $scope.center.lng;
+        //  });
+        //});
+        //if ($scope.markers.crosshair.setLatLng) $scope.markers.crosshair.setLatLng($scope.center);
+      };
+      $scope.$on('leafletDirectiveMap.move', updateCrosshair);
+      $scope.$on('leafletDirectiveMap.moveend', updateCrosshair);
+    }]);
+  </script>
+}
+@section styles {
+  <style type="text/css">
+    .leaflet-control-layers-toggle { background-image: url(@Url.Content("~/images/map/layers.png")) }
+    .container-fluid { padding: 0px; }
+    @@media (max-width: 797px) { body { padding-left: 0px; padding-right: 0px; } }
+  </style>
+}
