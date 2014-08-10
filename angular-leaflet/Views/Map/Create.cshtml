@@ -37,6 +37,7 @@
   @Scripts.Render("~/bundles/sitescript")
 
   <script type="text/javascript">
+    L.Icon.Default.imagePath = _appRoot + "images/map";
     var mapServices = angular.module('mapServices', ['ngResource']);
 
     mapServices.factory('Map', ['$resource',

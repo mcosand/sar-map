@@ -14,6 +14,7 @@
   @Scripts.Render("~/bundles/sitescript")
 
   <script type="text/javascript">
+    L.Icon.Default.imagePath = _appRoot + "images/map";
     var app = angular.module("leafletapp", ["leaflet-directive"]);
     app.controller('MapController', ["$scope", "$timeout", function ($scope, $timeout)
     {
