@@ -19,6 +19,7 @@ namespace angular_leaflet
                   "~/Scripts/jquery.validate*"));
 
       bundles.Add(new ScriptBundle("~/bundles/sitescript").Include(
+                  "~/Scripts/bootstrap.js",
                   "~/Scripts/angular.js",
                   "~/Scripts/angular-resource.js",
                   "~/Scripts/leaflet.js",

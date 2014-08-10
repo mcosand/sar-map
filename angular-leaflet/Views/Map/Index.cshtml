@@ -1,4 +1,33 @@
 ﻿@{
   ViewBag.Title = "Home Page";
+  ViewBag.NgApp = "mapApp";
+  ViewBag.NgController = "IndexController";
 }
-Default page
+<ul data-ng-repeat="map in list">
+  <li><a data-ng-href="@Url.Content("~/Map/View/"){{map.Id}}" data-ng-bind="map.Name"></a></li>
+</ul>
+
+
+@section scripts {
+  @Scripts.Render("~/bundles/sitescript")
+
+  <script type="text/javascript">
+    var mapServices = angular.module('mapServices', ['ngResource']);
+
+    mapServices.factory('Map', ['$resource',
+      function ($resource) {
+        return $resource(_appRoot + 'api/Map/:mapId', { mapId: '@@Id' });
+      }]);
+
+
+    var app = angular.module("mapApp", ["mapServices"]);
+    app.controller('IndexController', ["$scope", "Map", function ($scope, MapResource)
+    {
+      angular.extend($scope, {
+        foo: "blah",
+        list: MapResource.query(function () { })
+      });
+      
+    }]);
+   </script>
+}

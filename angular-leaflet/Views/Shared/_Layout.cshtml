@@ -1,35 +1,55 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-ng-app="@ViewBag.NgApp">
-  <head>
-    <meta charset="utf-8" />
-    <title>@ViewBag.Title - My ASP.NET MVC Application</title>
-    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @Styles.Render("~/Content/css")
-    @RenderSection("styles", required: false)
-    @Scripts.Render("~/bundles/modernizr")
+<head>
+  <meta charset="utf-8" />
+  <title>@ViewBag.Title</title>
+  <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  @Styles.Render("~/Content/css")
+  @RenderSection("styles", required: false)
+  @Scripts.Render("~/bundles/modernizr")
   </h>
-  <body class="container-fluid" data-ng-controller="@ViewBag.NgController">
-      <header class="row">
-          <div class="col-xs-12">
-            Header
-          </div>
-      </header>
-      <div id="body" class="row">
-          @*@RenderSection("featured", required: false)*@
-          <div class="col-xs-12 main-content">
-              @RenderBody()
-          </div>
-      </div>
-      <footer class="row">
-        <div class="col-xs-12">
-          Footer
-          </div>
-      </footer>
+  <body data-ng-controller="@ViewBag.NgController">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#" style="padding-left:10px">SAR Map</a>
+        </div>
 
-       <script type="text/javascript">_appRoot = '@Url.Content("~/")';</script>
-      @Scripts.Render("~/bundles/jquery")
-      @RenderSection("scripts", required: false)
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="@Url.Action("Index")">List</a></li>
+            <li><a href="@Url.Action("Create")">New</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            @RenderSection("secondMenu", required: false)
+          </ul>
+        </div>
+    </nav>
+    <div id="body" class="container-fluid">
+      <div class="row">
+        @*@RenderSection("featured", required: false)*@
+        <div class="col-xs-12 main-content">
+          @RenderBody()
+        </div>
+      </div>
+    </div>
+    <footer class="row">
+      <div class="col-xs-12">
+        
+      </div>
+    </footer>
+
+    <script type="text/javascript">_appRoot = '@Url.Content("~/")';</script>
+    @Scripts.Render("~/bundles/jquery")
+    @RenderSection("scripts", required: false)
   </body>
 </html>

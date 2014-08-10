@@ -20,7 +20,7 @@ using Data = DataModel;
     private static Expression<Func<Data.Map, Map>> mapExpr = f => new Map
         {
           Id = f.Id,
-          Name = f.Name,
+          Name = f.Name ?? "unknown",
           Lat = f.Lat,
           Lng = f.Lng,
           Zoom = f.Zoom,

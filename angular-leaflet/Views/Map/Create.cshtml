@@ -48,7 +48,7 @@
 
     var app = angular.module("leafletapp", ["leaflet-directive", "mapServices"]);
 
-    app.controller('MapController', ["$scope", "$timeout", "$window", "Map", function ($scope, $timeout, $window, MapResource)
+    app.controller('MapController', ["$scope", "$window", "Map", function ($scope, $window, MapResource)
     {
       angular.extend($scope, {
         doCreate: function()
