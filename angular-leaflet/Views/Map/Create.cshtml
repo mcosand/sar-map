@@ -1,38 +1,41 @@
 ﻿@{
-    ViewBag.Title = "Map - " + this.ViewBag.MapName;
-    ViewBag.NgApp = "leafletapp";
-    ViewBag.NgController = "MapController";
+  ViewBag.Title = "Map - " + this.ViewBag.MapName;
+  ViewBag.NgApp = "leafletapp";
+  ViewBag.NgController = "MapController";
 }
 
 <div class="row">
   <h2 class="col-xs12 gutters-15">Create New Map</h2>
 </div>
-<div class="row">
-  <div class="col-xs-12 col-sm-6">
-    <form role="form" class="form-horizontal gutters-15" style="margin-bottom:15px">
+<form role="form" class="form-horizontal gutters-15" style="margin-bottom: 15px">
+  <div class="row">
+    <div class="col-sm-6">
       <div class="form-group">
         <label for="mapName">Map name</label>
         <input type="text" class="form-control input-lg" id="mapName" data-ng-model="newMapName" />
       </div>
-      <div class="form-group">
-        <label for="mapLat">Latitude</label>
-        <input type="text" class="form-control" id="mapLat" data-ng-model="map.center.lat" />
-      </div>
-      <div class="form-group">
-        <label for="mapLng">Longitude</label>
-        <input type="text" class="form-control" id="mapLng" data-ng-model="map.center.lng" />
-      </div>
-      <div class="form-group">
-        <label for="mapZoom">Zoom level</label>
-        <input type="text" class="form-control" id="mapZoom" data-ng-model="map.center.zoom" />
-      </div>
       <button type="submit" class="btn btn-default" data-ng-disabled="isWorking" data-ng-click="doCreate()">Create Map</button>
-    </form>
+    </div>
+    <div class="col-sm-6">
+      <div style="margin-right: 20px">
+        <leaflet center="map.center" layers="map.layers" markers="map.markers" defaults="map.defaults" style="height: 500px;"></leaflet>
+        <div class="form-group">
+          <label for="mapLat">Latitude</label>
+          <input type="text" class="form-control" id="mapLat" data-ng-model="map.center.lat" />
+        </div>
+        <div class="form-group">
+          <label for="mapLng">Longitude</label>
+          <input type="text" class="form-control" id="mapLng" data-ng-model="map.center.lng" />
+        </div>
+        <div class="form-group">
+          <label for="mapZoom">Zoom level</label>
+          <input type="text" class="form-control" id="mapZoom" data-ng-model="map.center.zoom" />
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="col-xs-12 col-sm-6">
-    <leaflet center="map.center" layers="map.layers" markers="map.markers" defaults="map.defaults" style="height:400px; margin-right:20px"></leaflet>
-  </div>
-</div>
+</form>
+
 @section scripts {
   @Scripts.Render("~/bundles/sitescript")
 
@@ -48,11 +51,9 @@
 
     var app = angular.module("leafletapp", ["leaflet-directive", "mapServices"]);
 
-    app.controller('MapController', ["$scope", "$window", "Map", function ($scope, $window, MapResource)
-    {
+    app.controller('MapController', ["$scope", "$window", "Map", function ($scope, $window, MapResource) {
       angular.extend($scope, {
-        doCreate: function()
-        {
+        doCreate: function () {
           $scope.isWorking = true;
           var m = new MapResource({
             lat: $scope.map.center.lat,

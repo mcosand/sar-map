@@ -23,6 +23,7 @@ namespace angular_leaflet
                   "~/Scripts/angular.js",
                   "~/Scripts/angular-resource.js",
                   "~/Scripts/leaflet.js",
+                  "~/Scripts/leaflet.google.js",
                   "~/Scripts/angular-leaflet-directive.js"
                   ));
       // Use the development version of Modernizr to develop with and learn from. Then, when you're

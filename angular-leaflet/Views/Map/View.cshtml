@@ -4,105 +4,176 @@
     ViewBag.NgController = "MapController";
 }
 
-<leaflet center="center" layers="layers" markers="markers" defaults="defaults" style="height:400px; width:100%"></leaflet>
-<div>
-  <span data-ng-bind="center.lat"></span>
-  <span data-ng-bind="center.lng"></span>
-  <span data-ng-bind="center.zoom"></span>
+<leaflet center="map.center" layers="map.layers" markers="map.markers" defaults="map.defaults" style="width:100%" data-ng-style="style()" resize></leaflet>
+
+<div style="display:none">
+  <span data-ng-bind="map.center.lat"></span>
+  <span data-ng-bind="map.center.lng"></span>
+  <span data-ng-bind="map.center.zoom"></span>
 </div>
 @section scripts {
+  <script src="http://maps.google.com/maps/api/js?v=3.2&sensor=false"></script>
   @Scripts.Render("~/bundles/sitescript")
 
   <script type="text/javascript">
     L.Icon.Default.imagePath = _appRoot + "images/map";
-    var app = angular.module("leafletapp", ["leaflet-directive"]);
-    app.controller('MapController', ["$scope", "$timeout", function ($scope, $timeout)
+
+    var mapObjectServices = angular.module('mapObjectServices', ['ngResource']);
+
+    mapObjectServices.factory('MapObject', ['$resource',
+      function ($resource) {
+        return $resource(_appRoot + 'api/Map/:mapId/MapObject/:objectId', { mapId: '@Model.Id', objectId: '@@Id' });
+      }]);
+
+    var app = angular.module("leafletapp", ["leaflet-directive", "mapObjectServices"]);
+
+    app.directive('resize', function ($window) {
+      return function (scope, element) {
+        var w = angular.element($window);
+        scope.$watch(function () {
+          return { 'h': w.height(), 'w': w.width() };
+        }, function (newValue, oldValue) {
+          scope.windowHeight = newValue.h;
+          scope.windowWidth = newValue.w;
+            
+          scope.style = function () {
+            return { 
+              'height': (newValue.h - $('nav').height() - 1) + 'px',
+              'width': (newValue.w) + 'px' 
+            };
+          };
+            
+        }, true);
+	
+        w.bind('resize', function () {
+          scope.$apply();
+        });
+      }
+    });
+
+
+    app.controller('MapController', ["$scope", "MapObject", function ($scope, MapObject)
     {
       angular.extend($scope, {
-        center: {
-          lat: @Model.Lat,
-          lng: @Model.Lng,
-          zoom: @Model.Zoom
-        },
-        layers: {
-          baselayers: {
-            mapquest: {
-              name: 'MapQuest',
-              url: 'http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.jpg',
-              type: 'xyz',
-              layerOptions: {
-                subdomains: '1234',
-                attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
-              }
+        map: {
+          center: {
+            lat: @Model.Lat,
+            lng: @Model.Lng,
+            zoom: @Model.Zoom
             },
-            osm: {
-              name: 'OpenStreetMap',
-              url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              type: 'xyz'
+          layers: {
+            overlays: {
             },
-            arcUSTopo: {
-              name: 'arcUS',
-              url: 'https://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/{z}/{y}/{x}',
-              type: 'xyz',
-              layerOptions: {
-                maxNativeZoom: 15,
-                maxZoom: 18
+            baselayers: {
+              mapquest: {
+                name: 'MapQuest',
+                url: 'http://otile{s}.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.jpg',
+                type: 'xyz',
+                layerOptions: {
+                  subdomains: '1234',
+                  attribution: 'Tiles Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">'
+                }
+              },
+              googleHybrid: {
+                name: 'Google Satellite',
+                layerType: 'HYBRID',
+                type: 'google'
+              },
+              googleRoads: {
+                name: 'Google Street',
+                layerType: 'ROADMAP',
+                type: 'google'
+              },
+              osm: {
+                name: 'OpenStreetMap',
+                url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                type: 'xyz'
+              },
+              arcUSTopo: {
+                name: 'arcUS',
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/{z}/{y}/{x}',
+                type: 'xyz',
+                layerOptions: {
+                  maxNativeZoom: 15,
+                  maxZoom: 18
+                }
+              },
+              usgsTopo: {
+                name: 'USGS Topo',
+                url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
+                type: 'xyz',
+                layerOptions: {
+                  maxNativeZoom: 15
+                }
               }
-            },
-            usgsTopo: {
-              name: 'USGS Topo',
-              url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}',
-              type: 'xyz',
-              layerOptions: {
-                maxNativeZoom: 15
-              }
-            }
 
-          }
-        },
-        markers: {
-          crosshair: {
-            lat: 47.5,
-            lng: -122,
-            focus: false,
-            draggable: false,
-            icon: {
-              iconUrl: '@Url.Content("~/images/map/crosshair.png")',
-              iconSize: [20, 20],
-              iconAnchor: [10, 10],
-              shadowSize: [0,0]
             }
-          }
-        },
-        defaults: {
-          scrollWheelZoom: true
-        },
-        events: {
-          map: {
-            enable: ['move', 'moveend'],
-            logic: 'emit'
+          },
+          markers: {
+            crosshair: {
+              lat: 47.5,
+              lng: -122,
+              focus: false,
+              draggable: false,
+              icon: {
+                iconUrl: '@Url.Content("~/images/map/crosshair.png")',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
+                shadowSize: [0,0]
+              }
+            }
+          },
+          defaults: {
+            scrollWheelZoom: true
+          },
+          events: {
+            map: {
+              enable: ['move', 'moveend'],
+              logic: 'emit'
+            }
           }
         }
       });
 
+      var onGeoJsonFeature = function(feature, layer) {
+        if (feature.properties && feature.properties.Name) {
+          var html = '<strong>' + feature.properties.Name + '</strong>';
+          if (feature.properties.Text)
+            html += '<div>' + feature.properties.Text + '</div>';
+          layer.bindPopup('<div>' + html + '</div>');
+        }
+      }
+
       var updateCrosshair = function (event) {
-        //$timeout(function () {
-        //  $scope.$apply(function (scope) {
-        $scope.markers.crosshair.lat = $scope.center.lat;
-        $scope.markers.crosshair.lng = $scope.center.lng;
-        //  });
-        //});
-        //if ($scope.markers.crosshair.setLatLng) $scope.markers.crosshair.setLatLng($scope.center);
+        $scope.map.markers.crosshair.lat = $scope.map.center.lat;
+        $scope.map.markers.crosshair.lng = $scope.map.center.lng;
       };
       $scope.$on('leafletDirectiveMap.move', updateCrosshair);
       $scope.$on('leafletDirectiveMap.moveend', updateCrosshair);
+
+     
+      MapObject.query().$promise.then(function(data) {
+        for (var i=0; i<data.length; i++)
+        {
+          $scope.map.layers.overlays['mapObjects'] = {
+            name:'Map Objects',
+            type: 'geoJSON',
+            data: data[i],
+            layerOptions: {
+              onEachFeature: onGeoJsonFeature
+            }
+          };
+        }
+      });
+//        console.log(data);
+//        console.log($scope.map.layers.overlays);
     }]);
   </script>
 }
 @section styles {
   <style type="text/css">
     .leaflet-control-layers-toggle { background-image: url(@Url.Content("~/images/map/layers.png")) }
-    #body { padding: 0px; }
-    @@media (max-width: 797px) { body { padding-left: 0px; padding-right: 0px; } }
+    #body { padding-left: 0px; }
+@*    @@media (max-width: 797px) { body { padding-left: 0px; padding-right: 0px; } }*@
   </style>
 }

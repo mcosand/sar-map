@@ -10,13 +10,8 @@ using System.Web.Http;
 using angular_leaflet.Api.Models;
 using Data = DataModel;
 
-  public class MapController : ApiController
+  public class MapController : BaseMapApiController
   {
-    private Data.MapContext GetDb()
-    {
-      return new Data.MapContext("MapContext");
-    }
-
     private static Expression<Func<Data.Map, Map>> mapExpr = f => new Map
         {
           Id = f.Id,

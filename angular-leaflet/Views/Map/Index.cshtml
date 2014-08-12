@@ -3,10 +3,12 @@
   ViewBag.NgApp = "mapApp";
   ViewBag.NgController = "IndexController";
 }
-<ul data-ng-repeat="map in list">
-  <li><a data-ng-href="@Url.Content("~/Map/View/"){{map.Id}}" data-ng-bind="map.Name"></a></li>
-</ul>
-
+<div style="padding-top:1em">
+  <div class="spinner" data-ng-show="loading">Loading ...</div>
+  <ul data-ng-repeat="map in list">
+    <li><a data-ng-href="@Url.Content("~/Map/View/"){{map.Id}}" data-ng-bind="map.Name"></a></li>
+  </ul>
+</div>
 
 @section scripts {
   @Scripts.Render("~/bundles/sitescript")
@@ -24,8 +26,8 @@
     app.controller('IndexController', ["$scope", "Map", function ($scope, MapResource)
     {
       angular.extend($scope, {
-        foo: "blah",
-        list: MapResource.query(function () { })
+        loading: true,
+        list: MapResource.query(function () { $scope.loading = false })
       });
       
     }]);
