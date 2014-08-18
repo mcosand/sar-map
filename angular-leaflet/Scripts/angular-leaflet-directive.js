@@ -1993,7 +1993,9 @@
               pluginOptions: layerDefinition.pluginOptions
             };
           //TODO Add $watch to the layer properties
-          return layerTypes[layerDefinition.type].createLayer(params);
+          var newLayer = layerTypes[layerDefinition.type].createLayer(params);
+          newLayer.definition = layerDefinition;
+          return newLayer;
         }
       };
     }
@@ -2019,8 +2021,8 @@
       var _createLayersControl = function (mapId) {
         var defaults = leafletMapDefaults.getDefaults(mapId);
         var controlOptions = {
-            collapsed: defaults.controls.layers.collapsed,
-            position: defaults.controls.layers.position
+            collapsed: leafletHelpers.isDefined(defaults.controls.layers.collapsed) ? defaults.controls.layers.collapsed : true,
+            position: defaults.controls.layers.position || 'topright'
           };
         var control;
         if (defaults.controls.layers && isDefined(defaults.controls.layers.control)) {
